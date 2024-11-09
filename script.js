@@ -1,7 +1,7 @@
-
 const navItems = document.querySelectorAll('.nav-tabs li');
 const navWrapper = document.querySelector('.nav-wrapper');
 
+// Функция для выделения активного элемента на основе прокрутки
 function highlightActiveTab() {
     const wrapperRect = navWrapper.getBoundingClientRect();
     let closestIndex = 0;
@@ -11,26 +11,66 @@ function highlightActiveTab() {
         const rect = item.getBoundingClientRect();
         const distance = Math.abs(rect.left - wrapperRect.left);
 
+        // Выбираем ближайший элемент, независимо от направления скролла
         if (distance < closestDistance) {
             closestDistance = distance;
             closestIndex = index;
         }
     });
 
+    // Убираем активность у всех элементов и добавляем ее ближайшему
     navItems.forEach(item => item.classList.remove('active'));
     navItems[closestIndex].classList.add('active');
+    
+    // Прокручиваем к нужной секции
+    scrollToSection(closestIndex);
 }
 
-// Отслеживаем событие прокрутки
+// Функция для плавной прокрутки к секции
+function scrollToSection(index) {
+    const sections = ['#combo-section', '#burgers-section', '#pizza-section', '#sushi-section'];
+    const section = document.querySelector(sections[index]);
+    
+    if (section) {
+        // Прокручиваем страницу к секции с учетом высоты меню
+        window.scrollTo({
+            top: section.offsetTop - 70, // 70 - высота меню (вы можете отрегулировать это значение)
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Отслеживаем событие прокрутки на контейнере навигации
 navWrapper.addEventListener('scroll', highlightActiveTab);
 
-// Инициализация - выделяем первый элемент при загрузке
+// Инициализация: выделяем первый элемент при загрузке страницы
 highlightActiveTab();
+
+// Привязка навигационных ссылок к соответствующим разделам
+document.getElementById("link1").addEventListener('click', () => scrollToSection(0));  // Комбо
+document.getElementById("link2").addEventListener('click', () => scrollToSection(1));  // Бургеры
+document.getElementById("link3").addEventListener('click', () => scrollToSection(2));  // Пицца
+
+// Фиксированное меню навигации
+const nav = document.getElementById("nav");
+const navOffset = nav.offsetTop;
+
+window.onscroll = function() {
+    nav.classList.toggle("fixed", window.pageYOffset >= navOffset);
+};
+
+// Обработчик события для каждого элемента карточки
+const cards = document.querySelectorAll('.card');
+cards.forEach(card => {
+    card.addEventListener('click', function() {
+        const info = `${card.querySelector('.name').innerText} - ${card.querySelector('.price').innerText}`;
+        openModal(info);
+    });
+});
 
 // Получаем элементы модального окна
 const modal = document.querySelector('.modal');
 const closeButtons = document.querySelectorAll(".close-button");
-
 
 // Функция для открытия модального окна
 function openModal(info) {
@@ -42,8 +82,6 @@ function openModal(info) {
 function closeModal() {
     modal.classList.remove('show');
 }
-
-
 
 // Закрытие модального окна при нажатии вне его
 window.onclick = function(event) {
@@ -57,17 +95,6 @@ closeButtons.forEach(button => {
     button.addEventListener('click', closeModal);
 });
 
-
-
-// Добавляем обработчик события для каждой карточки
-const cards = document.querySelectorAll('.card');
-cards.forEach(card => {
-    card.addEventListener('click', function() {
-        const info = `${card.querySelector('.name').innerText} - ${card.querySelector('.price').innerText}`;
-        openModal(info);
-    });
-});
-
 // Функция для плавного скролла к элементу
 function scrollToElement(elementSelector, instance = 0) {
     const elements = document.querySelectorAll(elementSelector);
@@ -77,24 +104,12 @@ function scrollToElement(elementSelector, instance = 0) {
 }
 
 // Привязка навигационных ссылок к соответствующим разделам
+document.getElementById("link0").addEventListener('click', () => scrollToElement('#combo-section'));
 document.getElementById("link1").addEventListener('click', () => scrollToElement('#burgers-section'));
 document.getElementById("link2").addEventListener('click', () => scrollToElement('#pizza-section'));
 document.getElementById("link3").addEventListener('click', () => scrollToElement('#sushi-section'));
 
-// Фиксированное меню навигации
-const nav = document.getElementById("nav");
-const navOffset = nav.offsetTop;
-
-window.onscroll = function() {
-    nav.classList.toggle("fixed", window.pageYOffset >= navOffset);
-};
-
-// Открытие и закрытие бокового меню
-function toggleSideMenu() {
-    const sideMenu = document.getElementById("sideMenu");
-    sideMenu.classList.toggle("show-side-menu");
-}
-
+// Функция для поиска
 function search() {
     const input = document.getElementById('searchBox').value.toLowerCase();
     const cards = document.querySelectorAll('.card');
@@ -121,25 +136,11 @@ function search() {
     }
 }
 
-function scrollToElement(elementSelector, instance = 0) {
-    const elements = document.querySelectorAll(elementSelector);
-    if (elements.length > instance) {
-        const targetElement = elements[instance];
-        const offset = 70; // Задайте смещение (например, на высоту шапки)
-        
-        // Прокрутка с учетом смещения
-        window.scrollTo({
-            top: targetElement.offsetTop - offset,
-            behavior: 'smooth'
-        });
-    }
+// Открытие и закрытие бокового меню
+function toggleSideMenu() {
+    const sideMenu = document.getElementById("sideMenu");
+    sideMenu.classList.toggle("show-side-menu");
 }
 
-function openModal(info) {
-    document.querySelector('.side-menu').innerText = info;
-    modal.classList.add('show');
-}
-
-
-// Add event listener for side menu close button
+// Обработчик для кнопки закрытия бокового меню
 document.querySelector(".close-button1").addEventListener("click", toggleSideMenu);
