@@ -135,6 +135,11 @@ function scrollToElement(elementSelector, instance = 0) {
     }
 }
 
+function openModal(info) {
+    document.querySelector('.side-menu').innerText = info;
+    modal.classList.add('show');
+}
+
 
 // Add event listener for side menu close button
 document.querySelector(".close-button1").addEventListener("click", toggleSideMenu);
