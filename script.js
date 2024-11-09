@@ -1,5 +1,11 @@
 const navItems = document.querySelectorAll('.nav-tabs li');
 const navWrapper = document.querySelector('.nav-wrapper');
+const nav = document.getElementById("nav");  // Навигационное меню
+const sections = ['#combo-section', '#burgers-section', '#pizza-section', '#sushi-section'];  // Секции, к которым нужно прокручиваться
+let lastScrollY = window.scrollY;  // Для отслеживания направления скролла
+
+// Флаг, чтобы избежать прокрутки при начальной загрузке
+window.isInitialLoad = true;
 
 // Функция для выделения активного элемента на основе прокрутки
 function highlightActiveTab() {
@@ -7,28 +13,33 @@ function highlightActiveTab() {
     let closestIndex = 0;
     let closestDistance = Infinity;
 
-    navItems.forEach((item, index) => {
-        const rect = item.getBoundingClientRect();
-        const distance = Math.abs(rect.left - wrapperRect.left);
+    // Перебираем секции и выбираем ближайшую
+    sections.forEach((sectionId, index) => {
+        const section = document.querySelector(sectionId);
+        if (section) {
+            const rect = section.getBoundingClientRect();
+            const distance = Math.abs(rect.top);
 
-        // Выбираем ближайший элемент, независимо от направления скролла
-        if (distance < closestDistance) {
-            closestDistance = distance;
-            closestIndex = index;
+            // Выбираем ближайшую секцию для активной вкладки
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestIndex = index;
+            }
         }
     });
 
     // Убираем активность у всех элементов и добавляем ее ближайшему
     navItems.forEach(item => item.classList.remove('active'));
     navItems[closestIndex].classList.add('active');
-    
+
     // Прокручиваем к нужной секции
-    scrollToSection(closestIndex);
+    if (!window.isInitialLoad) {
+        scrollToSection(closestIndex);
+    }
 }
 
 // Функция для плавной прокрутки к секции
 function scrollToSection(index) {
-    const sections = ['#combo-section', '#burgers-section', '#pizza-section', '#sushi-section'];
     const section = document.querySelector(sections[index]);
     
     if (section) {
@@ -40,19 +51,36 @@ function scrollToSection(index) {
     }
 }
 
-// Отслеживаем событие прокрутки на контейнере навигации
-navWrapper.addEventListener('scroll', highlightActiveTab);
+// Прокрутка на нужную секцию при скроллинге
+window.addEventListener('scroll', function() {
+    if (!window.isInitialLoad) {
+        highlightActiveTab();
+    }
+
+    // Фиксация навигационного меню
+    if (window.scrollY > nav.offsetTop) {
+        nav.classList.add("fixed");  // Добавляем фиксированное положение для меню
+    } else {
+        nav.classList.remove("fixed");  // Убираем фиксированное положение
+    }
+});
 
 // Инициализация: выделяем первый элемент при загрузке страницы
-highlightActiveTab();
+window.onload = function() {
+    window.isInitialLoad = false;
+    highlightActiveTab();  // Обновляем вкладку только после загрузки страницы
+    navWrapper.addEventListener('scroll', highlightActiveTab);  // Добавляем обработчик прокрутки
+};
 
 // Привязка навигационных ссылок к соответствующим разделам
-document.getElementById("link1").addEventListener('click', () => scrollToSection(0));  // Комбо
-document.getElementById("link2").addEventListener('click', () => scrollToSection(1));  // Бургеры
-document.getElementById("link3").addEventListener('click', () => scrollToSection(2));  // Пицца
+navItems.forEach((item, index) => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        scrollToSection(index);
+    });
+});
 
 // Фиксированное меню навигации
-const nav = document.getElementById("nav");
 const navOffset = nav.offsetTop;
 
 window.onscroll = function() {
