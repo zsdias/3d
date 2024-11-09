@@ -1,93 +1,86 @@
-const navItems = document.querySelectorAll('.nav-tabs li');
-const navWrapper = document.querySelector('.nav-wrapper');
-const nav = document.getElementById("nav");  // Навигационное меню
-const sections = ['#combo-section', '#burgers-section', '#pizza-section', '#sushi-section'];  // Секции, к которым нужно прокручиваться
-let lastScrollY = window.scrollY;  // Для отслеживания направления скролла
+// Получаем элементы навигации и секции
+const navItems = document.querySelectorAll('.nav-tabs li a'); // Навигационные элементы (ссылки)
+const sections = document.querySelectorAll('.section'); // Секции на странице
+const navWrapper = document.querySelector('.nav-wrapper'); // Обертка для навигации
+const nav = document.getElementById("nav"); // Навигационное меню
 
-// Флаг, чтобы избежать прокрутки при начальной загрузке
-window.isInitialLoad = true;
-
-// Функция для выделения активного элемента на основе прокрутки
+// Функция для выделения активного элемента в навигации в зависимости от прокрутки
 function highlightActiveTab() {
-    const wrapperRect = navWrapper.getBoundingClientRect();
-    let closestIndex = 0;
-    let closestDistance = Infinity;
+    let activeIndex = 0; // По умолчанию активен первый элемент
 
-    // Перебираем секции и выбираем ближайшую
-    sections.forEach((sectionId, index) => {
-        const section = document.querySelector(sectionId);
-        if (section) {
-            const rect = section.getBoundingClientRect();
-            const distance = Math.abs(rect.top);
-
-            // Выбираем ближайшую секцию для активной вкладки
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestIndex = index;
-            }
+    // Прокручиваем секции и проверяем, какая из них видна
+    sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect();
+        // Проверяем, что хотя бы часть секции на экране
+        if (rect.top <= window.innerHeight && rect.bottom >= 0) {
+            activeIndex = index; // Находим активную секцию
         }
     });
 
-    // Убираем активность у всех элементов и добавляем ее ближайшему
+    // Убираем класс активной секции у всех пунктов меню
     navItems.forEach(item => item.classList.remove('active'));
-    navItems[closestIndex].classList.add('active');
+    // Добавляем класс активной секции только тому элементу, который соответствует текущей секции
+    navItems[activeIndex].classList.add('active');
+    
+    // Прокручиваем меню, если необходимо, чтобы активный пункт оказался на верху
+    scrollNavToActive(activeIndex);
+}
 
-    // Прокручиваем к нужной секции
-    if (!window.isInitialLoad) {
-        scrollToSection(closestIndex);
+// Функция для прокрутки навигационного меню, чтобы активный пункт был виден
+function scrollNavToActive(index) {
+    const item = navItems[index];
+    const rect = item.getBoundingClientRect();
+
+    // Если активный элемент не виден, прокручиваем меню, чтобы он был в пределах видимости
+    if (rect.top < 0 || rect.bottom > navWrapper.offsetHeight) {
+        navWrapper.scrollTop = item.offsetTop - (navWrapper.offsetHeight / 2) + (item.offsetHeight / 2);
     }
 }
 
-// Функция для плавной прокрутки к секции
+// Функция для плавной прокрутки к секции при клике
 function scrollToSection(index) {
-    const section = document.querySelector(sections[index]);
-    
+    const section = sections[index];
     if (section) {
         // Прокручиваем страницу к секции с учетом высоты меню
         window.scrollTo({
-            top: section.offsetTop - 70, // 70 - высота меню (вы можете отрегулировать это значение)
+            top: section.offsetTop - 70, // 70 - высота меню
             behavior: 'smooth'
         });
     }
 }
 
-// Прокрутка на нужную секцию при скроллинге
+// Отслеживаем событие прокрутки страницы
 window.addEventListener('scroll', function() {
-    if (!window.isInitialLoad) {
-        highlightActiveTab();
-    }
-
-    // Фиксация навигационного меню
-    if (window.scrollY > nav.offsetTop) {
-        nav.classList.add("fixed");  // Добавляем фиксированное положение для меню
-    } else {
-        nav.classList.remove("fixed");  // Убираем фиксированное положение
-    }
+    highlightActiveTab(); // Обновляем активный пункт при прокрутке страницы
 });
 
 // Инициализация: выделяем первый элемент при загрузке страницы
-window.onload = function() {
-    window.isInitialLoad = false;
-    highlightActiveTab();  // Обновляем вкладку только после загрузки страницы
-    navWrapper.addEventListener('scroll', highlightActiveTab);  // Добавляем обработчик прокрутки
-};
+highlightActiveTab();
 
 // Привязка навигационных ссылок к соответствующим разделам
 navItems.forEach((item, index) => {
-    item.addEventListener('click', (e) => {
-        e.preventDefault();
-        scrollToSection(index);
+    item.addEventListener('click', (event) => {
+        event.preventDefault(); // Отменяем стандартное действие при клике на ссылку
+        scrollToSection(index); // При клике скроллим к секции
     });
 });
 
 // Фиксированное меню навигации
 const navOffset = nav.offsetTop;
+window.addEventListener('scroll', function() {
+    nav.classList.toggle("fixed", window.pageYOffset >= navOffset); // Фиксируем меню, когда оно выходит за пределы
+});
 
-window.onscroll = function() {
-    nav.classList.toggle("fixed", window.pageYOffset >= navOffset);
-};
+// Открытие и закрытие бокового меню
+function toggleSideMenu() {
+    const sideMenu = document.getElementById("sideMenu");
+    sideMenu.classList.toggle("show-side-menu"); // Переключаем видимость бокового меню
+}
 
-// Обработчик события для каждого элемента карточки
+// Обработчик для кнопки закрытия бокового меню
+document.querySelector(".close-button1").addEventListener("click", toggleSideMenu);
+
+// Обработчик для каждого элемента карточки (модальное окно)
 const cards = document.querySelectorAll('.card');
 cards.forEach(card => {
     card.addEventListener('click', function() {
@@ -132,7 +125,6 @@ function scrollToElement(elementSelector, instance = 0) {
 }
 
 // Привязка навигационных ссылок к соответствующим разделам
-document.getElementById("link0").addEventListener('click', () => scrollToElement('#combo-section'));
 document.getElementById("link1").addEventListener('click', () => scrollToElement('#burgers-section'));
 document.getElementById("link2").addEventListener('click', () => scrollToElement('#pizza-section'));
 document.getElementById("link3").addEventListener('click', () => scrollToElement('#sushi-section'));
@@ -172,3 +164,4 @@ function toggleSideMenu() {
 
 // Обработчик для кнопки закрытия бокового меню
 document.querySelector(".close-button1").addEventListener("click", toggleSideMenu);
+
