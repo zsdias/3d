@@ -17,28 +17,32 @@
     <script src="https://threejs.org/build/three.min.js"></script>
     <script src="https://threejs.org/examples/js/loaders/GLTFLoader.js"></script>
     <div class="container">
-        <div class="modal">
+        
+        <div class="modal" id="modal2">
             <div class="modal-content">
                 <div class="modal-header">
                     <span class="close-button" style="font-size: 3em;">&times;</span>
                 </div>
-                
+                <h2>Бургер</h2>
                 <div id="parentContainer" style="width: 100%; height: 400px;">
                     <div id="container3D"></div>
                 </div>
-                <h2>Бургер-Комбо</h2>
-                <h3>Цена</h3>
                 <p>Говяжий Чизбургер, большой картофель фри, Pepsi 0,5</p>
             </div>
         </div>
+
+        <div class="overlay" id="overlay2"></div>
+
+        <div id="overlay" class="overlay"></div>
+
         <div class="side-menu" id="sideMenu">
-            <span class="close-button1" style="font-size: 3em;">&times;</span>
+            <span class="close-button-side" onclick="toggleSideMenu()">×</span>
             <h2>Меню</h2>
             <p>Содержимое бокового меню</p>
         </div>
 
         <div class="header">
-            <img src="img/WhatsApp Image 2024-11-07 at 17.41.32.jpeg" alt="Логотип">
+            <img src="img/photo_5267501660689785948_w.jpg" alt="Логотип">
             <button class="menu-button" onclick="toggleSideMenu()">&#9776;</button>
         </div>
         </div>
@@ -50,7 +54,7 @@
 
         <div class="nav-wrapper" id="nav">
             <ul class="nav-tabs">
-                <li id="link0">Комбо</li>
+                <li class="active" id="link0">Комбо</li>
                 <li id="link1">Бургеры</li>
                 <li id="link2">Пицца</li>
                 <li id="link3">Роллы</li>
@@ -67,18 +71,22 @@
                 <div class="card">
                     <div class="price">2 700₸</div>
                     <div class="name">Menu Cheese Burger beef</div>
+                    
                 </div>
                 <div class="card">
                     <div class="price">3 200₸</div>
                     <div class="name">Menu Cheese Burger beef x2</div>
+                    
                 </div>
                 <div class="card">
                     <div class="price">2 700₸</div>
                     <div class="name">Menu Cheese Burger beef</div>
+                    
                 </div>
                 <div class="card">
                     <div class="price">2 700₸</div>
                     <div class="name">Menu Cheese Burger beef</div>
+                   
                 </div>
             </div>
         </div>
